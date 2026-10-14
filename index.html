@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rancho Jardins da Diva</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Roboto,system-ui,sans-serif}
+body{background:linear-gradient(145deg,#e8f5e9 0%,#c8e6c9 100%);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:30px 20px}
+.container{background:#fff;max-width:860px;width:100%;border-radius:32px;box-shadow:0 25px 50px -12px rgba(0,0,0,.35);overflow:hidden;border:1px solid #a5d6a7}
+.header{background:linear-gradient(135deg,#1b5e20,#2e7d32);color:#fff;padding:30px 28px 24px;text-align:center;border-bottom:6px solid #f9a825}
+.header h1{font-size:2rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+.header p{margin-top:10px;font-size:1.05rem;opacity:.9;font-style:italic}
+.tabs{display:flex;background:#f1f8e9;border-bottom:3px solid #2e7d32}
+.tabs button{flex:1;padding:18px 12px;background:transparent;border:none;font-size:1rem;font-weight:700;color:#4a6b4a;cursor:pointer;transition:all .2s;position:relative;display:flex;align-items:center;justify-content:center;gap:8px}
+.tabs button:hover{background:#e8f5e9;color:#1b5e20}
+.tabs button.ativo{color:#1b5e20;background:#fff}
+.tabs button.ativo::after{content:'';position:absolute;bottom:-3px;left:0;right:0;height:3px;background:#f9a825}
+.tab-conteudo{display:none}
+.tab-conteudo.ativo{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.form-card{padding:32px 28px 28px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:640px){.form-grid{grid-template-columns:1fr;gap:18px}.header h1{font-size:1.5rem}.form-card{padding:24px 18px}}
+.input-group{display:flex;flex-direction:column;gap:8px}
+.input-group label{font-weight:600;color:#1b5e20;font-size:.95rem;display:flex;align-items:center;gap:6px}
+.input-group input{padding:14px 16px;border:2px solid #c8e6c9;border-radius:18px;font-size:1rem;background:#fafffa;transition:all .2s;outline:none;color:#1f3a1f;font-weight:500}
+.input-group input:focus{border-color:#2e7d32;box-shadow:0 0 0 4px rgba(46,125,50,.15);background:#fff}
+.erro-msg{color:#d32f2f;font-size:.85rem;font-weight:600;min-height:1em}
+.full-width{grid-column:1/-1}
+.hospedes-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:420px){.hospedes-grid{grid-template-columns:1fr}}
+.contador-box{background:#f1f8e9;border:2px solid #c8e6c9;border-radius:16px;padding:12px;text-align:center}
+.contador-box label{display:block;font-size:.8rem;color:#2e4a2e;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.contador-controles{display:flex;align-items:center;justify-content:center;gap:8px}
+.contador-controles button{width:34px;height:34px;border-radius:50%;border:none;background:#2e7d32;color:#fff;font-size:1.3rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.contador-controles button:hover:not(:disabled){background:#1b5e20;transform:scale(1.08)}
+.contador-controles button:disabled{background:#bdbdbd;cursor:not-allowed}
+.contador-controles .valor{font-size:1.3rem;font-weight:800;color:#1b5e20;min-width:32px}
+.btn-calcular{grid-column:1/-1;background:#2e7d32;color:#fff;border:1px solid #1b5e20;padding:18px 24px;border-radius:60px;font-size:1.2rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;transition:all .2s;margin-top:6px;box-shadow:0 8px 18px rgba(46,125,50,.3)}
+.btn-calcular:hover{background:#1b5e20;transform:translateY(-2px)}
+.resultado-box{grid-column:1/-1;background:#f1f8e9;border-radius:24px;padding:24px 26px;margin-top:10px;border:2px dashed #81c784;display:none;animation:fadeIn .4s ease}
+.resultado-box.visivel{display:block}
+.resultado-titulo{font-size:1.2rem;font-weight:700;color:#1b5e20;display:flex;align-items:center;gap:10px;margin-bottom:18px;border-bottom:2px solid #a5d6a7;padding-bottom:12px}
+.resultado-linha{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-bottom:1px solid #c8e6c9;font-size:1.02rem;gap:12px}
+.resultado-linha .label{color:#2e4a2e;font-weight:500}
+.resultado-linha .valor{font-weight:700;color:#1b5e20;white-space:nowrap}
+.resultado-linha.total{border-bottom:none;margin-top:8px;padding-top:16px;font-weight:800;font-size:1.5rem;color:#1b5e20;border-top:3px solid #2e7d32}
+.resultado-linha.desconto .valor{color:#d32f2f}
+.detalhe-hospedes{background:#e8f5e9;border-radius:16px;padding:12px 16px;margin:8px 0 12px;font-size:.92rem;color:#1b5e20;display:flex;gap:10px;flex-wrap:wrap}
+.detalhe-hospedes span{background:#fff;padding:5px 12px;border-radius:30px;font-weight:600}
+.aviso{font-size:.87rem;color:#b26a00;background:#fff8e1;padding:14px 18px;border-radius:16px;margin-top:6px;border-left:6px solid #f9a825;grid-column:1/-1;line-height:1.5}
+.info-card{padding:32px 28px 36px}
+@media(max-width:640px){.info-card{padding:24px 18px}}
+.info-intro{background:linear-gradient(135deg,#e8f5e9,#f1f8e9);border-radius:20px;padding:22px 24px;margin-bottom:26px;color:#1b5e20;font-size:1.02rem;line-height:1.6;border-left:6px solid #2e7d32}
+.info-secao{margin-bottom:22px;border-radius:20px;overflow:hidden;border:2px solid #e8f5e9;background:#fafffa}
+.info-secao h3{background:#e8f5e9;color:#1b5e20;font-size:1.05rem;padding:14px 20px;display:flex;align-items:center;gap:10px;border-bottom:2px solid #c8e6c9}
+.info-secao .conteudo{padding:16px 22px 20px;color:#2e4a2e;font-size:.97rem;line-height:1.65}
+.info-secao .conteudo ul{list-style:none}
+.info-secao .conteudo li{padding:6px 0 6px 26px;position:relative}
+.info-secao .conteudo li::before{content:'✔';position:absolute;left:0;color:#2e7d32;font-weight:700}
+.info-secao .conteudo li.alerta::before{content:'⚠';color:#f9a825}
+.info-secao .conteudo li.proibido::before{content:'✖';color:#d32f2f}
+.info-secao .conteudo strong{color:#1b5e20}
+.destaque-contato{background:linear-gradient(135deg,#2e7d32,#1b5e20);color:#fff;border-radius:20px;padding:22px 24px;text-align:center;margin-top:10px}
+.destaque-contato h4{font-size:1.15rem;margin-bottom:12px}
+.destaque-contato p{margin:4px 0;font-size:1rem}
+.destaque-contato .tel{display:inline-block;background:#f9a825;color:#1b5e20;padding:10px 22px;border-radius:60px;font-weight:800;font-size:1.1rem;margin-top:10px;text-decoration:none}
+.footer{text-align:center;padding:18px 20px 24px;background:#f1f8e9;color:#2e4a2e;font-size:.9rem;border-top:1px solid #c8e6c9}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>🌿 Rancho Jardins da Diva</h1>
+<p>Seu refúgio na natureza</p>
+</div>
+
+<div class="tabs" role="tablist">
+<button class="ativo" onclick="abrirAba('calculadora',this)" role="tab">🧮 Calculadora</button>
+<button onclick="abrirAba('informacoes',this)" role="tab">📖 Informações</button>
+</div>
+
+<!-- CALCULADORA -->
+<div id="tab-calculadora" class="tab-conteudo ativo">
+<div class="form-card">
+<form id="formReserva" class="form-grid" onsubmit="calcular(event)" novalidate>
+<div class="input-group">
+<label for="checkin">📅 Data de Check-in</label>
+<input type="date" id="checkin" required>
+<div class="erro-msg" id="erro-checkin"></div>
+</div>
+<div class="input-group">
+<label for="checkout">📅 Data de Check-out</label>
+<input type="date" id="checkout" required>
+<div class="erro-msg" id="erro-checkout"></div>
+</div>
+<div class="input-group full-width">
+<label>👥 Hóspedes</label>
+<div class="hospedes-grid">
+<div class="contador-box">
+<label>Adultos (13+)</label>
+<div class="contador-controles">
+<button type="button" onclick="alterarHospede('adultos',-1)" aria-label="Diminuir adultos">−</button>
+<span class="valor" id="adultos">2</span>
+<button type="button" onclick="alterarHospede('adultos',1)" aria-label="Aumentar adultos">+</button>
+</div>
+</div>
+<div class="contador-box">
+<label>Crianças (7–12)</label>
+<div class="contador-controles">
+<button type="button" onclick="alterarHospede('criancas',-1)" aria-label="Diminuir crianças">−</button>
+<span class="valor" id="criancas">0</span>
+<button type="button" onclick="alterarHospede('criancas',1)" aria-label="Aumentar crianças">+</button>
+</div>
+</div>
+</div>
+<div class="erro-msg" id="erro-hospedes"></div>
+</div>
+<button type="submit" class="btn-calcular">🧮 Calcular hospedagem</button>
+<div id="resultado" class="resultado-box" aria-live="polite">
+<div class="resultado-titulo"><span>📋</span> Resumo da reserva</div>
+<div id="conteudoResultado"></div>
+</div>
+<div class="aviso">
+⚡ <strong>Feriados nacionais</strong> têm acréscimo de 30% sobre o valor base de fim de semana.<br>
+🎁 <strong>Estadia de 5 diárias ou mais:</strong> 10% de desconto no total.<br>
+🧒 <strong>Crianças (7–12):</strong> contam como meia vaga e pagam metade do adicional de adulto.
+</div>
+</form>
+</div>
+</div>
+
+<!-- INFORMAÇÕES -->
+<div id="tab-informacoes" class="tab-conteudo">
+<div class="info-card">
+<div class="info-intro">
+🌱 <strong>Bem-vindo(a) ao Rancho Jardins da Diva!</strong><br>
+Preparamos este guia para que sua estadia seja tranquila, confortável e inesquecível.
+Leia com atenção as informações abaixo — qualquer dúvida, é só falar com a gente. 💚
+</div>
+
+<div class="info-secao">
+<h3>🕐 Check-in e Check-out</h3>
+<div class="conteudo"><ul>
+<li><strong>Check-in:</strong> a partir das <strong>14h</strong></li>
+<li><strong>Check-out:</strong> até as <strong>12h</strong> (meio-dia)</li>
+<li>Chegadas fora do horário podem ser combinadas com antecedência.</li>
+<li class="alerta">Atrasos no check-out podem gerar cobrança de diária adicional.</li>
+</ul></div>
+</div>
+
+<div class="info-secao">
+<h3>👥 Capacidade e hóspedes</h3>
+<div class="conteudo"><ul>
+<li>Capacidade máxima do rancho: <strong>20 pessoas</strong>.</li>
+<li>O valor base cobre até <strong>4 hóspedes adultos-equivalentes</strong>.</li>
+<li>Crianças de 7 a 12 anos contam como meia vaga.</li>
+<li class="alerta">Visitantes não podem pernoitar sem autorização prévia.</li>
+</ul></div>
+</div>
+
+<div class="info-secao">
+<h3>🏡 O que o rancho oferece</h3>
+<div class="conteudo"><ul>
+<li>Área verde ampla e jardins cuidados</li>
+<li>Piscina (uso diurno)</li>
+<li>Churrasqueira e área gourmet coberta</li>
+<li>Cozinha equipada (fogão, geladeira, utensílios básicos)</li>
+<li>Wi-Fi nas áreas comuns</li>
+<li>Estacionamento interno para até 6 carros</li>
+<li>Roupa de cama e banho fornecidas</li>
+</ul></div>
+</div>
+
+<div class="info-secao">
+<h3>🧺 O que recomendamos trazer</h3>
+<div class="conteudo"><ul>
+<li>Alimentos e bebidas de sua preferência</li>
+<li>Carvão e acendedor para a churrasqueira</li>
+<li>Protetor solar, repelente e toalhas de piscina</li>
+<li>Roupas confortáveis e calçado para trilha</li>
+<li>Produtos de higiene pessoal</li>
+</ul></div>
+</div>
+
+<div class="info-secao">
+<h3>🐾 Política de Pets</h3>
+<div class="conteudo"><ul>
+<li>Pets de pequeno e médio porte são bem-vindos, com aviso prévio.</li>
+<li>O tutor é responsável pela limpeza e comportamento do animal.</li>
+<li class="proibido">Pets não podem subir em camas e sofás.</li>
+<li class="proibido">Não deixe o pet sozinho nas áreas internas.</li>
+</ul></div>
+</div>
+
+<div class="info-secao">
+<h3>🤝 Regras de convivência</h3>
+<div class="conteudo"><ul>
+<li><strong>Silêncio:</strong> após as 22h nas áreas externas.</li>
+<li>Música em volume moderado, respeitando os vizinhos.</li>
+<li>Não é permitido fumar dentro das acomodações.</li>
+<li>Descarte o lixo nos locais indicados e mantenha a área limpa.</li>
+<li class="proibido">Eventos e festas com público externo não são permitidos sem contrato específico.</li>
+</ul></div>
+</div>
+
+<div class="info-secao">
+<h3>🍽️ Cozinha e Churrasqueira</h3>
+<div class="conteudo"><ul>
+<li>Uso livre durante a estadia.</li>
+<li>Lave e guarde os utensílios após o uso.</li>
+<li>Deixe a churrasqueira limpa após utilizá-la.</li>
+<li class="alerta">Há uma <strong>taxa de limpeza</strong> caso a churrasqueira seja entregue suja.</li>
+</ul></div>
+</div>
+
+<div class="info-secao">
+<h3>💳 Pagamento e Cancelamento</h3>
+<div class="conteudo"><ul>
+<li><strong>Reserva:</strong> 50% de sinal no ato e 50% no check-in.</li>
+<li>Formas aceitas: PIX, transferência e dinheiro.</li>
+<li><strong>Cancelamento grátis</strong> até 7 dias antes do check-in.</li>
+<li>Cancelamentos com menos de 7 dias: retenção de 50% do sinal.</li>
+<li>Não comparecimento (no-show): sem devolução.</li>
+</ul></div>
+</div>
+
+<div class="info-secao">
+<h3>🚗 Estacionamento e Acesso</h3>
+<div class="conteudo"><ul>
+<li>Estacionamento interno gratuito (até 6 veículos).</li>
+<li>Acesso por estrada de terra nos últimos 2 km — dirija com cuidado.</li>
+<li>Recomendamos chegar antes do anoitecer na primeira visita.</li>
+<li>Uber e táxi chegam até a portaria, mas o retorno pode ser demorado.</li>
+</ul></div>
+</div>
+
+<div class="destaque-contato">
+<h4>📞 Precisa falar com a gente?</h4>
+<p>Estamos à disposição antes, durante e após sua estadia.</p>
+<p><strong>Responsável:</strong> Diva · <strong>Telefone/WhatsApp:</strong></p>
+<a href="tel:+5500000000000" class="tel">(00) 00000-0000</a>
+<p style="margin-top:14px;font-size:.85rem;opacity:.85">Emergências médicas: SAMU 192 · Bombeiros 193 · Polícia 190</p>
+</div>
+</div>
+</div>
+
+<div class="footer"><strong>Rancho Jardins da Diva</strong> · Seu refúgio na natureza 🌿</div>
+</div>
+
+<script>
+function abrirAba(nome,botao){
+  document.querySelectorAll('.tab-conteudo').forEach(t=>t.classList.remove('ativo'));
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('ativo'));
+  document.getElementById('tab-'+nome).classList.add('ativo');
+  botao.classList.add('ativo');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+const PRECO_BASE_SEMANA=250,PRECO_BASE_FDS=350,PRECO_BASE_VESPERA=400;
+const ADICIONAL_SEMANA=40,ADICIONAL_FDS=50,ADICIONAL_VESPERA=55;
+const TAXA_FERIADO=0.30,LIMITE_HOSPEDES_BASE=4,CAPACIDADE_MAXIMA=20;
+const MIN_DIARIAS_DESCONTO=5,PERCENTUAL_DESCONTO=0.10,ATIVAR_VESPERA=true;
+
+const FERIADOS_FIXOS=["01-01","04-21","05-01","09-07","10-12","11-02","11-15","11-20","12-25"];
+const FERIADOS_REGIONAIS=[];
+
+function calcularPascoa(ano){
+  const a=ano%19,b=Math.floor(ano/100),c=ano%100;
+  const d=Math.floor(b/4),e=b%4;
+  const f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3);
+  const h=(19*a+b-d-g+15)%30;
+  const i=Math.floor(c/4),k=c%4;
+  const l=(32+2*e+2*i-h-k)%7;
+  const m=Math.floor((a+11*h+22*l)/451);
+  const mes=Math.floor((h+l-7*m+114)/31);
+  const dia=((h+l-7*m+114)%31)+1;
+  return new Date(Date.UTC(ano,mes-1,dia));
+}
+
+function feriadosMoveisDoAno(ano){
+  const p=calcularPascoa(ano);
+  const addD=(d,n)=>{const x=new Date(d);x.setUTCDate(x.getUTCDate()+n);return x;};
+  const ch=d=>d.toISOString().slice(0,10);
+  return new Set([ch(addD(p,-48)),ch(addD(p,-47)),ch(addD(p,-2)),ch(addD(p,60))]);
+}
+
+const cacheFeriados={};
+function ehFeriado(data){
+  const ano=data.getUTCFullYear();
+  const mm=String(data.getUTCMonth()+1).padStart(2,'0');
+  const dd=String(data.getUTCDate()).padStart(2,'0');
+  if(FERIADOS_FIXOS.includes(mm+'-'+dd))return true;
+  if(FERIADOS_REGIONAIS.includes(mm+'-'+dd))return true;
+  if(!cacheFeriados[ano])cacheFeriados[ano]=feriadosMoveisDoAno(ano);
+  return cacheFeriados[ano].has(ano+'-'+mm+'-'+dd);
+}
+
+const ehFimDeSemana=d=>d.getUTCDay()===0||d.getUTCDay()===6;
+const addDias=(d,n)=>{const x=new Date(d);x.setUTCDate(x.getUTCDate()+n);return x;};
+const formatarMoeda=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const toUTC=str=>{const[a,m,d]=str.split('-').map(Number);return new Date(Date.UTC(a,m-1,d));};
+
+const hospedes={adultos:2,criancas:0};
+
+function alterarHospede(tipo,delta){
+  const novo=hospedes[tipo]+delta;
+  if(novo<0)return;
+  if(tipo==='adultos'&&novo<1)return;
+  const totalAtual=hospedes.adultos+hospedes.criancas;
+  if(delta>0&&totalAtual+delta>CAPACIDADE_MAXIMA){
+    document.getElementById('erro-hospedes').textContent=
+      'Capacidade máxima do rancho: '+CAPACIDADE_MAXIMA+' pessoas.';
+    return;
+  }
+  document.getElementById('erro-hospedes').textContent='';
+  hospedes[tipo]=novo;
+  document.getElementById(tipo).textContent=novo;
+  atualizarBotoes();
+}
+
+function atualizarBotoes(){
+  const total=hospedes.adultos+hospedes.criancas;
+  document.querySelectorAll('.contador-box').forEach(box=>{
+    const label=box.querySelector('label').textContent.trim();
+    const btns=box.querySelectorAll('button');
+    btns[1].disabled=total>=CAPACIDADE_MAXIMA;
+    const tipo=label.startsWith('Adultos')?'adultos':'criancas';
+    const min=tipo==='adultos'?1:0;
+    btns[0].disabled=hospedes[tipo]<=min;
+  });
+}
+
+function calcular(event){
+  event.preventDefault();
+
+  const erroCheckin=document.getElementById('erro-checkin');
+  const erroCheckout=document.getElementById('erro-checkout');
+  const erroHospedes=document.getElementById('erro-hospedes');
+  erroCheckin.textContent=erroCheckout.textContent='';
+
+  const inCI=document.getElementById('checkin');
+  const inCO=document.getElementById('checkout');
+
+  let valido=true;
+  if(!inCI.value){erroCheckin.textContent='Informe a data de check-in.';valido=false;}
+  if(!inCO.value){erroCheckout.textContent='Informe a data de check-out.';valido=false;}
+  if(!valido)return;
+
+  const dataCI=toUTC(inCI.value);
+  const dataCO=toUTC(inCO.value);
+
+  if(dataCO<=dataCI){
+    erroCheckout.textContent='Check-out deve ser depois do check-in.';
+    return;
+  }
+
+  const totalHospedes=hospedes.adultos+hospedes.criancas;
+  if(totalHospedes<1){
+    erroHospedes.textContent='Informe ao menos 1 hóspede.';
+    return;
+  }
+  if(totalHospedes>CAPACIDADE_MAXIMA){
+    erroHospedes.textContent='Capacidade máxima: '+CAPACIDADE_MAXIMA+' pessoas.';
+    return;
+  }
+
+  const numDiarias=Math.round((dataCO-dataCI)/86400000);
+
+  const equivalentes=hospedes.adultos+hospedes.criancas*0.5;
+  const excedente=Math.max(0,equivalentes-LIMITE_HOSPEDES_BASE);
+  const adultosExtras=Math.max(0,Math.min(hospedes.adultos,excedente));
+  const criancasExtras=Math.max(0,Math.floor(Math.min(hospedes.criancas,(excedente-adultosExtras)*2)));
+
+  let totalAdicional=0,totalAcrescimoFeriado=0,subtotal=0;
+  let diariasSemana=0,diariasFDS=0,diariasFeriado=0,diariasVespera=0;
+
+  for(let i=0;i<numDiarias;i++){
+    const dia=addDias(dataCI,i);
+    const feriado=ehFeriado(dia);
+    const fds=ehFimDeSemana(dia);
+    const vespera=ATIVAR_VESPERA&&!feriado&&ehFeriado(addDias(dia,1));
+
+    let baseDia=0,adicionalDia=0,acrescimoDia=0;
+
+    if(feriado){
+      diariasFeriado++;
+      baseDia=PRECO_BASE_FDS;
+      adicionalDia=adultosExtras*ADICIONAL_FDS+criancasExtras*(ADICIONAL_FDS/2);
+      acrescimoDia=(baseDia+adicionalDia)*TAXA_FERIADO;
+    } else if(fds){
+      diariasFDS++;
+      baseDia=PRECO_BASE_FDS;
+      adicionalDia=adultosExtras*ADICIONAL_FDS+criancasExtras*(ADICIONAL_FDS/2);
+    } else if(vespera){
+      diariasVespera++;
+      baseDia=PRECO_BASE_VESPERA;
+      adicionalDia=adultosExtras*ADICIONAL_VESPERA+criancasExtras*(ADICIONAL_VESPERA/2);
+    } else {
+      diariasSemana++;
+      baseDia=PRECO_BASE_SEMANA;
+      adicionalDia=adultosExtras*ADICIONAL_SEMANA+criancasExtras*(ADICIONAL_SEMANA/2);
+    }
+
+    totalAdicional+=adicionalDia;
+    totalAcrescimoFeriado+=acrescimoDia;
+    subtotal+=baseDia+adicionalDia+acrescimoDia;
+  }
+
+  const desconto=numDiarias>=MIN_DIARIAS_DESCONTO?subtotal*PERCENTUAL_DESCONTO:0;
+  const total=subtotal-desconto;
+
+  let html='';
+
+  html+='<div class="detalhe-hospedes">';
+  html+='<span>👤 '+hospedes.adultos+' adulto'+(hospedes.adultos!==1?'s':'')+'</span>';
+  if(hospedes.criancas>0)html+='<span>🧒 '+hospedes.criancas+' criança'+(hospedes.criancas!==1?'s':'')+' (7–12)</span>';
+  html+='<span>📆 '+numDiarias+' diária'+(numDiarias!==1?'s':'')+'</span>';
+  html+='</div>';
+
+  const linhas=[];
+  if(diariasSemana)linhas.push(['Diárias de semana',diariasSemana,PRECO_BASE_SEMANA]);
+  if(diariasVespera)linhas.push(['Vésperas de feriado',diariasVespera,PRECO_BASE_VESPERA]);
+  if(diariasFDS)linhas.push(['Fins de semana',diariasFDS,PRECO_BASE_FDS]);
+  if(diariasFeriado)linhas.push(['Feriados (+30%)',diariasFeriado,PRECO_BASE_FDS]);
+
+  linhas.forEach(function(l){
+    html+='<div class="resultado-linha"><span class="label">'+l[0]+' ('+l[1]+'x)</span><span class="valor">'+formatarMoeda(l[1]*l[2])+'</span></div>';
+  });
+
+  if(totalAdicional>0){
+    const partes=[];
+    if(adultosExtras>0)partes.push(adultosExtras+' adulto'+(adultosExtras>1?'s':'')+' extra'+(adultosExtras>1?'s':''));
+    if(criancasExtras>0)partes.push(criancasExtras+' criança'+(criancasExtras>1?'s':'')+' (meia)');
+    html+='<div class="resultado-linha"><span class="label">Adicional: '+partes.join(' + ')+'</span><span class="valor">'+formatarMoeda(totalAdicional)+'</span></div>';
+  }
+
+  if(totalAcrescimoFeriado>0){
+    html+='<div class="resultado-linha"><span class="label">Acréscimo feriado (30%)</span><span class="valor">'+formatarMoeda(totalAcrescimoFeriado)+'</span></div>';
+  }
+
+  html+='<div class="resultado-linha"><span class="label">Subtotal</span><span class="valor">'+formatarMoeda(subtotal)+'</span></div>';
+
+  if(desconto>0){
+    html+='<div class="resultado-linha desconto"><span class="label">🎁 Desconto estadia longa ('+(PERCENTUAL_DESCONTO*100).toFixed(0)+'%)</span><span class="valor">− '+formatarMoeda(desconto)+'</span></div>';
+  }
+
+  html+='<div class="resultado-linha total"><span class="label">TOTAL</span><span class="valor">'+formatarMoeda(total)+'</span></div>';
+
+  html+='<div style="margin-top:16px;font-size:.83rem;color:#4a6b4a;background:#e8f5e9;padding:12px 16px;border-radius:14px;line-height:1.5">';
+  html+='💡 Valor base cobre até <strong>'+LIMITE_HOSPEDES_BASE+' hóspedes adultos-equivalentes</strong>. ';
+  html+='Crianças (7–12) contam como meia vaga.<br>';
+  html+='Adicional: <strong>'+formatarMoeda(ADICIONAL_SEMANA)+'</strong> (semana) · ';
+  html+='<strong>'+formatarMoeda(ADICIONAL_VESPERA)+'</strong> (véspera) · ';
+  html+='<strong>'+formatarMoeda(ADICIONAL_FDS)+'</strong> (FDS/feriado).';
+  html+='</div>';
+
+  document.getElementById('conteudoResultado').innerHTML=html;
+  document.getElementById('resultado').classList.add('visivel');
+  document.getElementById('resultado').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+window.addEventListener('DOMContentLoaded',function(){
+  const hoje=new Date();
+  const iso=function(d){return d.toISOString().slice(0,10);};
+  const amanha=new Date(hoje);amanha.setDate(hoje.getDate()+1);
+
+  document.getElementById('checkin').value=iso(hoje);
+  document.getElementById('checkout').value=iso(amanha);
+  document.getElementById('checkin').min=iso(hoje);
+  document.getElementById('checkout').min=iso(amanha);
+
+  document.getElementById('checkin').addEventListener('change',function(){
+    if(!this.value)return;
+    const ci=toUTC(this.value);
+    const minCO=addDias(ci,1);
+    const co=document.getElementById('checkout');
+    co.min=minCO.toISOString().slice(0,10);
+    if(!co.value||toUTC(co.value)<=ci)co.value=minCO.toISOString().slice(0,10);
+  });
+
+  atualizarBotoes();
+});
+</script>
+</body>
+</html>
